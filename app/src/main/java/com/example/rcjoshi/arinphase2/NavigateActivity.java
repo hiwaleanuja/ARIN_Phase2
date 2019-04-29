@@ -83,7 +83,7 @@ public class NavigateActivity extends AppCompatActivity {
                     return true;
                 case R.id.bottom_navigation_next:
                     //mTextMessage.setText(R.string.title_notifications);
-                    Intent mNextIntent = new Intent(NavigateActivity.this, NavigateBasic.class);
+                    Intent mNextIntent = new Intent(NavigateActivity.this, SourceIdentification.class);
                     startActivity(mNextIntent);
                     finish();
                     return true;

@@ -7,10 +7,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -29,6 +31,9 @@ public class NavigateBasic extends AppCompatActivity implements SensorEventListe
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private int numSteps=0, limNumSteps=-1;
+
+    private final String TAG = "NavigateBasic";
+    private int reachedDestSum = 0;
 
     private TextView mSrcMessage,mDestMessage,mNavMsg,mNumStepsMsg;
     private int mListenerRegistered=0;
@@ -146,6 +151,7 @@ public class NavigateBasic extends AppCompatActivity implements SensorEventListe
                 {   mSrcNum = 109; mSrcGroup=2;   }
                 else
                 {
+                    Log.d(TAG, "mSavedSrc" + mSavedSrc);
                     mSrcMessage.setText("Source selected: "+mSavedSrc.substring(mSavedSrc.length() - 3));
                     //Toast.makeText(getApplicationContext(),"Src:"+mSavedSrc.substring(mSavedSrc.length() - 3),Toast.LENGTH_SHORT).show();
                     mSrcNum = Integer.parseInt(mSavedSrc.substring(mSavedSrc.length() - 3));
@@ -171,6 +177,7 @@ public class NavigateBasic extends AppCompatActivity implements SensorEventListe
                 }
                 if (mSrcGroup==1 && mSrcNum>mDestNum) {
                     mDir=-1;
+                    reachedDestSum = 0;
                     for (int i=mAryPtrSrc-1; i>=mAryPtrDest; i+=mDir)
                     {
                         mNavMsg.setText("Inside the loop");
@@ -178,6 +185,7 @@ public class NavigateBasic extends AppCompatActivity implements SensorEventListe
                             //limNumSteps = mStepsG1[i];
                             //while (mStepsFlag==0){}
                             //mNavMsg.setText(mStepsG1[i] + " steps towards Entrance");
+                            Log.d(TAG, "mstepsG1"+ mStepsG1[i]);
                             mAllInstructionList.add(mStepsG1[i] + " steps towards Entrance");
                             arrayAdapter.notifyDataSetChanged();
                             Toast.makeText(getApplicationContext(), mStepsG1[i] +
@@ -187,6 +195,7 @@ public class NavigateBasic extends AppCompatActivity implements SensorEventListe
                         //}
                         //else
                         //    i++;
+                        reachedDestSum += mStepsG1[i];
                     }
                 }
                 else if (mSrcGroup==1 && mSrcNum<mDestNum){ //103,104
@@ -263,7 +272,10 @@ public class NavigateBasic extends AppCompatActivity implements SensorEventListe
 
     @Override
     public void step(long timeNs) {
-        numSteps++;
+        if (numSteps < reachedDestSum){
+            numSteps++;
+        }
+
         mNumStepsMsg.setText("Steps : " + numSteps);
         if (numSteps==limNumSteps) {
             mListenerRegistered = 0;
